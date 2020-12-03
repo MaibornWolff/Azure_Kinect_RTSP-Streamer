@@ -1,42 +1,33 @@
 #!/bin/bash
 
-#source ./aivero_environment.sh && tail -f /dev/null
-#k4aviewer
-source /opt/aivero/rgbd_toolkit_x86_64/aivero_environment.sh && \
-# Color rtsp sender
+source /opt/aivero/rgbd_toolkit/aivero_environment.sh && \
+
+# Color only rtsp sender
 # gst-launch-1.0 k4asrc enable_color=true \
 # ! queue ! rgbddemux name=demux demux.src_color ! queue \
 # ! videoconvert ! x264enc \
 # ! rtspclientsink location=rtsp://rtsp-simple-server:8554/color
 
-# Depth rtsp sender
+# Depth only rtsp sender
 # gst-launch-1.0 k4asrc enable_color=true \
 # ! queue ! rgbddemux name=demux demux.src_depth \
 # ! colorizer near-cut=300 far-cut=5000 ! queue \
 # ! videoconvert ! x264enc \
 # ! rtspclientsink location=rtsp://rtsp-simple-server:8554/color
 
-#for rts stream
-# gst-launch-1.0 k4asrc enable_color=true \
-# ! queue ! rgbddemux name=demux demux.src_depth \
-# ! colorizer near-cut=300 far-cut=5000 \
-# ! queue ! videoconvert ! queue \
-# ! autovideosink demux.src_color ! queue \
-# ! videoconvert ! x264enc \
-# ! rtspclientsink location=rtsp://rtsp-simple-server:8554/color
+#Test rtsp sender with test source
+#gst-launch-1.0 videotestsrc ! x264enc ! rtspclientsink location=rtsp://rtsp-server:8554/kinect
 
-#Test rtsp sender
-#gst-launch-1.0 videotestsrc ! x264enc ! rtspclientsink location=rtsp://rtsp-server:8554/realtest
-
-# Receive rtsp:
-#gst-launch-1.0 rtspsrc latency=0 location=rtsp://localhost:8554/test ! rtph264depay ! decodebin ! autovideosink
+# Receive rtsp on host:
+#gst-launch-1.0 rtspsrc latency=0 location=rtsp://localhost:8554/kinect ! rtph264depay ! decodebin ! autovideosink
 
 #! udpsink host=rtsp-simple-server port=8000
 
-# for video via x11 on host
+# for video via x11 on host as 2 videos
 gst-launch-1.0 k4asrc enable_color=true rectify-depth=true timestamp_mode=clock_all real-time-playback=true \
 depth-mode=nfov_unbinned framerate=15fps \
 ! queue ! rgbddemux name=demux demux.src_depth \
+! colorizer near-cut=300 far-cut=5000  \
 ! queue ! videoconvert ! queue \
 ! autovideosink demux.src_color ! queue \
 ! videoconvert ! autovideosink
@@ -64,7 +55,7 @@ depth-mode=nfov_unbinned framerate=15fps \
 #    queue ! videoconvert ! mix.
 
 
-# mix rtsp;
+# mix to one video and stream to "rtsp-simple-server";
 # gst-launch-1.0 \
 #    k4asrc enable_color=true rectify-depth=true timestamp_mode=clock_all real-time-playback=true color-format=nv12 color-resolution=720p \
 #    depth-mode=nfov_unbinned framerate=15fps \

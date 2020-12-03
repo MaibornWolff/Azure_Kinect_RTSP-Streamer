@@ -1,6 +1,6 @@
 version: '3'
 services:
-  # alternative rtsp-server: can be used with rtsp commands in "entry.sh"
+  # alternative rtsp-server: can be used with rtsp commands in "x11-entry.sh"
   # rtsp-simple-server:
   #   image: aler9/rtsp-simple-server
   #   network_mode: "host"
@@ -16,6 +16,7 @@ services:
     build:
       context: ..
       dockerfile: ./docker/Dockerfile
+      # dockerfile: ./docker/Dockerfile_dev
     environment:
       - DISPLAY=${DISPLAY}
       - HOSTNAME=${HOSTNAME}
@@ -25,7 +26,3 @@ services:
       - $HOME/.Xauthority:/home/lyonn/.Xauthority
     privileged: true
     #command: ["/bin/bash","entry.sh"]
-    #command: ["/bin/bash","/src/entrypoint.sh"]
-
-
-
