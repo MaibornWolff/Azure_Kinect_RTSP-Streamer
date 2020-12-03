@@ -1,0 +1,50 @@
+gst-launch-1.0 k4asrc enable_color=true \
+! queue ! rgbddemux name=demux demux.src_depth \
+! colorizer near-cut=300 far-cut=5000 \
+! queue ! videoconvert ! queue \
+! autovideosink demux.src_color ! queue \
+! videoconvert ! autovideosink
+
+
+All standard plugins need to be copied from defaul location to $GST_PLUGINS_PATH which comes from ./aivero_setup...sh script
+gst-libav with avenc_mpeg4 especially needed
+
+RTS Strea.
+http://www.einarsundgren.se/gstreamer-basic-real-time-streaming-tutorial/
+
+Send:
+gst-launch-1.0 -v k4asrc enable_color=true ! queue ! rgbddemux name=demux demux.src_depth ! colorizer near-cut=300 far-cut=5000 ! queue ! videoconvert ! avenc_mpeg4 ! rtpmp4vpay config-interval=3 ! udpsink host=127.0.0.1 port=5100
+
+Receive:
+gst-launch-1.0 -v udpsrc port=5100 caps = "application/x-rtp\,\ media\=\(string\)video\,\ clock-rate\=\(int\)90000\,\ encoding-name\=\(string\)MP4V-ES\,\ profile-level-id\=\(string\)1\,\ config\=\(string\)000001b001000001b58913000001000000012000c48d8800cd3204709443000001b24c61766335362e312e30\,\ payload\=\(int\)96\,\ ssrc\=\(uint\)2873740600\,\ timestamp-offset\=\(uint\)391825150\,\ seqnum-offset\=\(uint\)2980" ! rtpmp4vdepay ! avdec_mpeg4 ! autovideosink
+
+
+Mixer:
+gst-launch-1.0 videotestsrc pattern=1 ! \
+video/x-raw, framerate=\(fraction\)10/1, width=100, height=100 ! \
+videomixer name=mix ! videoconvert ! ximagesink \
+videotestsrc !  \
+video/x-raw, framerate=\(fraction\)5/1, width=320, height=240 ! mix.
+
+
+gst-launch-1.0 k4asrc enable_color=true \
+! queue ! rgbddemux name=demux demux.src_color ! queue ! videoconvert \
+! video/x-raw, framerate=\(fraction\)10/1, width=100, height=100 ! \
+videomixer name=mix ! videoconvert ! ximagesink \
+videotestsrc !  \
+video/x-raw, framerate=\(fraction\)5/1, width=320, height=240 ! mix.
+
+
+Write to file:
+gst-launch-1.0 k4asrc enable_color=true ! queue \
+! rgbddemux name=demux demux.src_depth ! colorizer near-cut=300 far-cut=5000 \
+! queue ! videoconvert ! queue ! x264enc \
+! filesink location=~/depth.mp4 demux.src_color ! queue ! videoconvert \
+! x264enc filesink location=~/color.mp4
+
+gst-launch-1.0 k4asrc enable_color=true ! queue ! rgbddemux name=demux demux.src_depth ! colorizer near-cut=300 far-cut=5000 ! queue ! videoconvert ! queue ! x264enc ! filesink location=~/depth.mp4 demux.src_color ! queue ! videoconvert ! x264enc filesink location=~/color.mp4
+
+gst-launch-1.0 k4asrc enable_color=true ! queue ! rgbddemux name=demux demux.src_depth \
+! colorizer near-cut=300 far-cut=5000 ! queue ! videoconvert ! queue \
+! x264enc ! avimux ! filesink location=~/depth.mp4 \
+demux.src_color ! queue ! videoconvert ! queue ! x264enc ! avimux ! filesink location=~/color.mp4

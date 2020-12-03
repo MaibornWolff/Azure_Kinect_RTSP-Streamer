@@ -1,0 +1,65 @@
+FROM ubuntu:bionic as dependencies
+# Use this with nvidia gpu: You need to install nvidia-containers on host system (ubuntu 18.04/20.04) first
+#FROM nvidia/opengl:base-ubuntu18.04 as dependencies
+
+RUN apt-get update && \
+apt-get install -y libgstreamer1.0-0 gstreamer1.0-plugins-base \
+ gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly \
+ gstreamer1.0-libav gstreamer1.0-doc gstreamer1.0-tools gstreamer1.0-x \
+ gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio \
+ gstreamer1.0-rtsp \
+ wget curl software-properties-common
+
+# installs the kinect-tools (e.g. k4a viewer). Can be used for debugging purposes
+#FROM dependencies as kinect
+# ARG DEBIAN_FRONTEND=noninteractive
+# RUN echo 'libk4a1.4 libk4a1.4/accepted-eula-hash string 0f5d5c5de396e4fee4c0753a21fee0c1ed726cf0316204edda484f08cb266d76' | debconf-set-selections
+# RUN echo 'libk4a1.4 libk4a1.4/accept-eula boolean true' | debconf-set-selections
+# RUN curl -sSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+# RUN apt-add-repository https://packages.microsoft.com/ubuntu/18.04/prod
+# RUN apt-get update && \
+#   apt-get install -y k4a-tools
+
+# FROM kinect
+
+FROM dependencies as rtsp-server
+
+RUN apt-get update && \
+    apt-get install -y --fix-missing \
+    libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev wget git vim python3-pip libgstrtspserver-1.0-0 dos2unix \
+    libgstreamer1.0-0 libgstrtspserver-1.0-0
+
+RUN apt install xz-utils
+COPY docker/rtsp-server/src src 
+WORKDIR /src
+RUN dos2unix /src/* && chmod +x install_rtsp.sh && bash +x install_rtsp.sh
+# comment in to download a test-video for the rtsp-server
+#RUN wget https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4
+RUN gcc -o stream  stream.c  `pkg-config --cflags --libs gstreamer-rtsp-server-1.0`
+
+FROM rtsp-server
+
+# this can be installed from aivero-repository aswell (but takes longer)
+COPY aivero/ /opt/aivero
+WORKDIR /opt/aivero/rgbd_toolkit
+# adds gstreamer "normal" plugins to aivero-gstreamer directory. Not needed, if "aivero_environment.sh" is adapted by adding gstreamer plugin path (readme)
+#RUN cp -n /usr/lib/x86_64-linux-gnu/gstreamer-1.0/ lib/gstreamer-1.0/
+#RUN cp -n /usr/include/gstreamer-1.0/gst include/gstreamer-1.0/gst/
+# On your normal ubuntu (non docker):
+# cp -r /usr/lib/x86_64-linux-gnu/gstreamer-1.0/ /opt/aivero/rgbd_toolkit/lib/gstreamer-1.0/
+
+#COPY docker/entry.sh .
+RUN chmod +x ./aivero_environment.sh
+
+# x11 stuff: needed for x11 Display-streaming to host (debugging)
+RUN groupadd -g 1000 lyonn
+RUN useradd -d /home/lyonn -s /bin/bash -m lyonn -u 1000 -g 1000
+USER lyonn
+ENV HOME /home/lyonn
+###############
+
+WORKDIR /src
+COPY docker/rtsp-server/entrypoint.sh /src/
+
+#CMD [ "bash", "entry.sh" ]
+ENTRYPOINT ["bash", "+x", "entrypoint.sh"]

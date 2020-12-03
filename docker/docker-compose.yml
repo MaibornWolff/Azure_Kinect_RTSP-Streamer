@@ -1,0 +1,31 @@
+version: '3'
+services:
+  # alternative rtsp-server: can be used with rtsp commands in "entry.sh"
+  # rtsp-simple-server:
+  #   image: aler9/rtsp-simple-server
+  #   network_mode: "host"
+  #   ports: 
+  #     - "8000:8000"
+  #     - "8001:8001"
+  #     - "8554:8554"
+  #   volumes:
+  #     - ./docker/rtsp-simple-server.yml:/rtsp-simple-server.yml"
+  rgbdtoolkits:
+    image: aivero-rgbd-toolkit:latest
+    network_mode: "host"
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+    environment:
+      - DISPLAY=${DISPLAY}
+      - HOSTNAME=${HOSTNAME}
+    volumes:
+      - '/dev:/dev'
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - $HOME/.Xauthority:/home/lyonn/.Xauthority
+    privileged: true
+    #command: ["/bin/bash","entry.sh"]
+    #command: ["/bin/bash","/src/entrypoint.sh"]
+
+
+
