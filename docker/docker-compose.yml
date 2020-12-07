@@ -1,6 +1,7 @@
 version: '3'
 services:
   # alternative rtsp-server: can be used with rtsp commands in "x11-entry.sh"
+  # configuration in "rtsp-simple-server.yml"
   # rtsp-simple-server:
   #   image: aler9/rtsp-simple-server
   #   network_mode: "host"
@@ -12,10 +13,12 @@ services:
   #     - ./docker/rtsp-simple-server.yml:/rtsp-simple-server.yml"
   rgbdtoolkits:
     image: aivero-rgbd-toolkit:latest
+    # remove "network_mode: host" if using rtsp-simple-server
     network_mode: "host"
     build:
       context: ..
       dockerfile: ./docker/Dockerfile
+      # Dockerfile_dev contains additional steps for debugging the used components
       # dockerfile: ./docker/Dockerfile_dev
     environment:
       - DISPLAY=${DISPLAY}
@@ -25,4 +28,5 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - $HOME/.Xauthority:/home/lyonn/.Xauthority
     privileged: true
-    #command: ["/bin/bash","entry.sh"]
+    # alternative entrypoint can be defined here
+    #command: ["/bin/bash","x11-entry.sh"]
