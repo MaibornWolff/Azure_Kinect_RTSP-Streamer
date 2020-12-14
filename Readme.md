@@ -11,6 +11,7 @@ https://gstreamer.freedesktop.org/
 
 https://gitlab.com/aivero/public/aivero-rgbd-toolkit
 
+![](theGif.gif)
 
 ## Usage
 
