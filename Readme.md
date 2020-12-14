@@ -78,5 +78,5 @@ gst-launch-1.0 -v udpsrc port=5100 caps = "application/x-rtp\,\ media\=\(string\
 ### Write to file color + depth:
 gst-launch-1.0 k4asrc enable_color=true ! queue ! rgbddemux name=demux demux.src_depth \
 ! colorizer near-cut=300 far-cut=5000 ! queue ! videoconvert ! queue \
-! x264enc ! avimux ! filesink location=~/depth.mp4 \
-demux.src_color ! queue ! videoconvert ! queue ! x264enc ! avimux ! filesink location=~/color.mp4
+! x264enc ! avimux ! filesink location=./depth.mp4 \
+demux.src_color ! queue ! videoconvert ! queue ! x264enc ! avimux ! filesink location=./color.mp4
