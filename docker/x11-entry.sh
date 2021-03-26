@@ -16,7 +16,8 @@ source /opt/aivero/rgbd_toolkit/aivero_environment.sh && \
 # ! rtspclientsink location=rtsp://rtsp-simple-server:8554/color
 
 #Test rtsp sender with test source
-#gst-launch-1.0 videotestsrc ! x264enc ! rtspclientsink location=rtsp://rtsp-server:8554/kinect
+# gst-launch-1.0 videotestsrc ! x264enc ! rtspclientsink location=rtsp://rtsp-simple-server:8554/kinect
+gst-launch-1.0 filesrc location=/rtsp-server/sample.mp4 ! x264enc ! queue ! rtspclientsink location=rtsp://rtsp-simple-server:8554/kinect
 
 # Receive rtsp on host:
 #gst-launch-1.0 rtspsrc latency=0 location=rtsp://localhost:8554/kinect ! rtph264depay ! decodebin ! autovideosink
@@ -24,13 +25,13 @@ source /opt/aivero/rgbd_toolkit/aivero_environment.sh && \
 #! udpsink host=rtsp-simple-server port=8000
 
 # for video via x11 on host as 2 videos
-gst-launch-1.0 k4asrc enable_color=true rectify-depth=true timestamp_mode=clock_all real-time-playback=true \
-depth-mode=nfov_unbinned framerate=15fps \
-! queue ! rgbddemux name=demux demux.src_depth \
-! colorizer near-cut=300 far-cut=5000  \
-! queue ! videoconvert ! queue \
-! autovideosink demux.src_color ! queue \
-! videoconvert ! autovideosink
+# gst-launch-1.0 k4asrc enable_color=true rectify-depth=true timestamp_mode=clock_all real-time-playback=true \
+# depth-mode=nfov_unbinned framerate=15fps \
+# ! queue ! rgbddemux name=demux demux.src_depth \
+# ! colorizer near-cut=300 far-cut=5000  \
+# ! queue ! videoconvert ! queue \
+# ! autovideosink demux.src_color ! queue \
+# ! videoconvert ! autovideosink
 
 # for video via x11 on host h264 encoded
 # gst-launch-1.0 k4asrc enable_color=true rectify-depth=true timestamp_mode=clock_all real-time-playback=true \

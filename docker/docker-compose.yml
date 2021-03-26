@@ -1,20 +1,20 @@
 version: '3'
 services:
   # alternative rtsp-server: can be used with rtsp commands in "x11-entry.sh"
-  # configuration in "rtsp-simple-server.yml"
-  # rtsp-simple-server:
-  #   image: aler9/rtsp-simple-server
-  #   network_mode: "host"
-  #   ports: 
-  #     - "8000:8000"
-  #     - "8001:8001"
-  #     - "8554:8554"
-  #   volumes:
-  #     - ./docker/rtsp-simple-server.yml:/rtsp-simple-server.yml"
+ # configuration in "rtsp-simple-server.yml"
+  rtsp-simple-server:
+    image: aler9/rtsp-simple-server
+    #network_mode: "host"
+    ports: 
+      - "8000:8000"
+      - "8001:8001"
+      - "8554:8554"
+    volumes:
+      - ./docker/rtsp-simple-server.yml:/rtsp-simple-server.yml"
   rgbdtoolkits:
-    image: aivero-rgbd-toolkit:latest
+    #image: aivero-rgbd-toolkit:latest
     # remove "network_mode: host" if using rtsp-simple-server
-    network_mode: "host"
+    #network_mode: "host"
     build:
       context: ..
       dockerfile: ./docker/Dockerfile

@@ -1,0 +1,10 @@
+ffmpeg -re -fflags +genpts -stream_loop -1 -i /rtsp-server/sample.mp4 -f rtsp rtsp://rtsp-simple-server:8554/kinect
+ffmpeg -threads 2 -re -fflags +genpts -stream_loop -1 -i /rtsp-server/sample.mp4 -f rtsp rtsp://rtsp-simple-server:8554/kinect
+ffmpeg -threads 2 -re -fflags +genpts -stream_loop -1 -i /rtsp-server/sample.mp4 -f rtsp rtsp://rtsp-simple-server:8554/kinect
+works:
+ffmpeg -stream_loop -1 -i /rtsp-server/sample.mp4 -vcodec copy -an -f rtsp rtsp://rtsp-simple-server:8554/kinect
+ffmpeg -stream_loop -1 -i /rtsp-server/sample.mp4 -an -f rtsp rtsp://rtsp-simple-server:8554/kinect
+
+ffmpeg -threads 2 -fflags +genpts -stream_loop -1 -re -i /rtsp-server/sample.mp4 -an -f rtsp rtsp://rtsp-simple-server:8554/kinect
+
+ffmpeg -re -stream_loop -1 -i /rtsp-server/sample.mp4 -c copy -f rtsp rtsp://rtsp-simple-server:8554/kinect
