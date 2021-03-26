@@ -17,31 +17,38 @@ RUN apt-get update && \
     libgstreamer1.0-0 libgstrtspserver-1.0-0
 
 RUN apt install xz-utils
-COPY docker/rtsp-server/src src 
-WORKDIR /src
-RUN chmod +x install_rtsp.sh && bash +x install_rtsp.sh
+COPY docker/rtsp-server/content rtsp-server
+WORKDIR /rtsp-server
+
+RUN chmod +x install_rtsp.sh && bash +x install_rtsp.sh && chmod +r gst-rtsp-server-1.4.0.tar.xz
 RUN gcc -o stream  stream.c  `pkg-config --cflags --libs gstreamer-rtsp-server-1.0`
 
 FROM rtsp-server as aivero-rgbd-toolkit
 
-RUN apt-get update && \
-  apt-get install --no-install-recommends -y python3-pip python3-setuptools python3-dev python3-venv python3-wheel git && \
-  pip3 install --upgrade conan
+# This will install rgbd-toolkit from source
 
-WORKDIR /opt/aivero/repository
-RUN conan config install https://gitlab.com/aivero/public/conan/conan-config.git
-RUN conan config set general.default_profile=linux_x86_64_release
-ARG RGBD_TOOLKIT_VERSION=2.0.1
-ENV CI_COMMIT_REF_SLUG=${RGBD_TOOLKIT_VERSION}
-RUN git clone https://gitlab.com/aivero/public/aivero-rgbd-toolkit.git -b ${RGBD_TOOLKIT_VERSION}
+# RUN apt-get update && \
+#   apt-get install --no-install-recommends -y python3-pip python3-setuptools python3-dev python3-venv python3-wheel git && \
+#   pip3 install --upgrade conan
 
-WORKDIR /opt/aivero/repository/aivero-rgbd-toolkit
-RUN conan create . aivero/stable
-RUN conan install aivero_rgbd_toolkit/${RGBD_TOOLKIT_VERSION}@aivero/stable -if /opt/aivero/rgbd_toolkit
+# WORKDIR /opt/aivero/repository
+# RUN conan config install https://gitlab.com/aivero/public/conan/conan-config.git
+# RUN conan config set general.default_profile=linux_x86_64_release
+# ARG RGBD_TOOLKIT_VERSION=2.0.1
+# ENV CI_COMMIT_REF_SLUG=${RGBD_TOOLKIT_VERSION}
+# RUN git clone https://gitlab.com/aivero/public/aivero-rgbd-toolkit.git -b ${RGBD_TOOLKIT_VERSION}
 
-# FROM rtsp-server as aivero-rgbd-toolkit-copy
-# You can also precompile the rgbd-toolkit on host (should be same linux) and copy it into the container. Much faster then building
-# COPY aivero/ /opt/aivero
+# WORKDIR /opt/aivero/repository/aivero-rgbd-toolkit
+# RUN conan create . aivero/stable
+# RUN conan install aivero_rgbd_toolkit/${RGBD_TOOLKIT_VERSION}@aivero/stable -if /opt/aivero/rgbd_toolkit
+
+RUN mkdir -p /opt/aivero
+RUN chown $USER:$USER /opt/aivero
+
+COPY docker/rgbd-toolkit /opt/aivero
+WORKDIR /opt/aivero
+RUN tar -C / -xvf aivero_rgbd_toolkit_2.0.0_x86_64.tar.bz2
+
 
 FROM aivero-rgbd-toolkit as kinect-rtsp-streamer
 
@@ -59,6 +66,7 @@ ENV HOME /home/lyonn
 # ENTRYPOINT ["bash", "+x", "x11-entry.sh"]
 # ###############
 
-WORKDIR /src
+WORKDIR /rtsp-server
 COPY docker/rtsp-server/rtsp-entry.sh .
-ENTRYPOINT ["bash", "+x", "rtsp-entry.sh"]
+# ENTRYPOINT ["bash", "+x", "rtsp-entry.sh"]
+CMD tail -f /dev/null
