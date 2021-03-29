@@ -3,7 +3,8 @@
 source /opt/aivero/rgbd_toolkit/aivero_environment.sh && \
 
 # Test-video stream to see if server is working
-#./stream "( filesrc location=/src/sample-mp4-file.mp4 ! qtdemux ! h264parse ! rtph264pay name=pay0 pt=96 )" "/test"
+# ./stream "( filesrc location=/rtsp-server/sample.mp4 ! qtdemux ! h264parse ! rtph264pay name=pay0 pt=96 )" "/kinect"
+# ./stream "( videotestsrc ! x264enc ! rtph264pay name=pay0 pt=96 )" "/kinect"
 
 # RGB-Stream only
 # ./stream "( k4asrc timestamp-mode=clock_all enable_color=true color-format=nv12 color-resolution=720p framerate=15fps \
