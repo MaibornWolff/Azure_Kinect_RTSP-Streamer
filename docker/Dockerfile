@@ -68,5 +68,5 @@ ENV HOME /home/lyonn
 
 WORKDIR /rtsp-server
 COPY docker/rtsp-server/rtsp-entry.sh .
-# ENTRYPOINT ["bash", "+x", "rtsp-entry.sh"]
-CMD tail -f /dev/null
+ENTRYPOINT ["bash", "+x", "rtsp-entry.sh"]
+#CMD tail -f /dev/null

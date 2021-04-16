@@ -17,11 +17,24 @@ source /opt/aivero/rgbd_toolkit/aivero_environment.sh && \
 framerate=15fps rectify-depth=true timestamp_mode=clock_all \
 ! queue ! rgbddemux name=demux demux.src_color ! queue ! videoconvert \
 ! videobox ! videomixer name=mix sink_0::xpos=0 sink_1::xpos=1280 \
-! x264enc speed-preset=ultrafast tune=zerolatency ! video/x-h264, profile=baseline \
+! x264enc speed-preset=veryfast tune=zerolatency ! video/x-h264, profile=baseline \
 ! h264parse ! rtph264pay name=pay0 pt=96 \
-demux.src_depth ! colorizer near-cut=300 far-cut=5000 \
+demux.src_depth ! colorizer near-cut=300 far-cut=2000 \
 ! videobox ! queue ! videoconvert
 ! mix.)" "/kinect"
+
+# Speed presets:
+# None (0) – No preset
+# ultrafast (1) – ultrafast
+# superfast (2) – superfast
+# veryfast (3) – veryfast
+# faster (4) – faster
+# fast (5) – fast
+# medium (6) – medium
+# slow (7) – slow
+# slower (8) – slower
+# veryslow (9) – veryslow
+# placebo (10) – placebo 
 
 # no colorizer (grey)
 # ./stream "( k4asrc timestamp-mode=clock_all enable_color=true color-format=nv12 color-resolution=720p depth-mode=nfov_unbinned \

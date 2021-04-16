@@ -15,6 +15,10 @@ https://gitlab.com/aivero/public/aivero-rgbd-toolkit
 
 ## Usage
 
+- clone the repository
+- >git-lfs install< (repository uses large file storage for archives and videos)
+- >git-lfs pull< (to make sure all dependencies are pulled and not just the lfs-pointers)
+
 Execute the "startup.sh" if you want to use x11-server for seeing the docker-containers UI on the host system (Ubuntu 18.04/20.04 tested -> x11-server needed on host).
 Otherwise docker-compose up --build is sufficient, as DISPLAY and HOSTNAME are not needed.
 
