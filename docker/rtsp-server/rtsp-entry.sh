@@ -17,11 +17,13 @@ source /opt/aivero/rgbd_toolkit/aivero_environment.sh && \
 framerate=15fps rectify-depth=true timestamp_mode=clock_all \
 ! queue ! rgbddemux name=demux demux.src_color ! queue ! videoconvert \
 ! videobox ! videomixer name=mix sink_0::xpos=0 sink_1::xpos=1280 \
-! x264enc speed-preset=veryfast tune=zerolatency ! video/x-h264, profile=baseline \
+! x264enc speed-preset=medium tune=zerolatency ! video/x-h264, profile=baseline \
 ! h264parse ! rtph264pay name=pay0 pt=96 \
-demux.src_depth ! colorizer near-cut=300 far-cut=2000 \
+demux.src_depth ! colorizer near-cut=2 far-cut=3 \
 ! videobox ! queue ! videoconvert
 ! mix.)" "/kinect"
+# far-cut works more as a "detail multiplier" for the custom libcolorizer.so (hsv-colors)
+# bigger values mean less detail-> values between 2 - 8 may make sense
 
 # Speed presets:
 # None (0) – No preset

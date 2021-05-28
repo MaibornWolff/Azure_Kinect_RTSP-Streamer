@@ -25,6 +25,7 @@ RUN gcc -o stream  stream.c  `pkg-config --cflags --libs gstreamer-rtsp-server-1
 
 FROM rtsp-server as aivero-rgbd-toolkit
 
+###############
 # This will install rgbd-toolkit from source
 
 # RUN apt-get update && \
@@ -41,7 +42,9 @@ FROM rtsp-server as aivero-rgbd-toolkit
 # WORKDIR /opt/aivero/repository/aivero-rgbd-toolkit
 # RUN conan create . aivero/stable
 # RUN conan install aivero_rgbd_toolkit/${RGBD_TOOLKIT_VERSION}@aivero/stable -if /opt/aivero/rgbd_toolkit
+##############
 
+# Unzip the rgbd-toolkit from archive
 RUN mkdir -p /opt/aivero
 RUN chown $USER:$USER /opt/aivero
 
@@ -56,11 +59,14 @@ WORKDIR /opt/aivero/rgbd_toolkit
 COPY docker/aivero_environment.sh .
 RUN chmod +x ./aivero_environment.sh
 
-# # x11 stuff: needed for x11 Display-streaming to host (e.g. debugging if kinect works)
+# For some reason this is needed, as depth-engine won't start otherwise (initially added for x11 to work)
 RUN groupadd -g 1000 lyonn
 RUN useradd -d /home/lyonn -s /bin/bash -m lyonn -u 1000 -g 1000
 USER lyonn
 ENV HOME /home/lyonn
+
+# ################
+# x11 stuff: needed for x11 Display-streaming to host (e.g. debugging if kinect works)
 # alternative entrypoint for x11 stream to host
 # COPY docker/x11-entry.sh .
 # ENTRYPOINT ["bash", "+x", "x11-entry.sh"]
@@ -68,5 +74,11 @@ ENV HOME /home/lyonn
 
 WORKDIR /rtsp-server
 COPY docker/rtsp-server/rtsp-entry.sh .
+
+# This is an alternative colorizer that uses hsv-colors instead of "random" colors from a table
+# These colors are easy to transform back to depth, but we loose a bit of accuracy in comparision to greyscale
+# This colorizer can be modified by near-cut (between 1-~5) and far-cut (between 3-~8)
+# COPY docker/libcolorizer.so /opt/aivero/rgbd_toolkit_x86_64/lib/gstreamer-1.0/
+
 ENTRYPOINT ["bash", "+x", "rtsp-entry.sh"]
 #CMD tail -f /dev/null
