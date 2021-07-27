@@ -60,6 +60,18 @@ gst-launch-1.0 k4asrc enable_color=true \
 ! videoconvert ! x264enc \
 ! rtspclientsink location=rtsp://rtsp-simple-server:8554/color
 
+### Custom colorizer
+The dockerfile contains a line that replaces the "default" colorizer with a custom
+prototype. The custom colorizer transforms the colors to hsv-colors instead of using a
+lookup-table (as the default one does). This makes it easier to transform colors back
+to depth on the receiver site.
+
+Be aware that "near-cut" and "far-cut" work differently for this colorizer. 
+near-cut: Where it starts; Internally multiplied with 256 
+far-gut: How deep it goes, starting from near-cut; Internally multiplied with 256
+Example: near-cut = 2, far-cut = 3
+-> Depth image ranges from 2*256 to ( 2*256 + 3*256 )
+
 ### Mix to one video and stream to "rtsp-simple-server";
 gst-launch-1.0 \
    k4asrc enable_color=true rectify-depth=true timestamp_mode=clock_all real-time-playback=true color-format=nv12 color-resolution=720p \    depth-mode=nfov_unbinned framerate=15fps \

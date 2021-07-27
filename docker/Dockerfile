@@ -7,7 +7,8 @@ apt-get install -y libgstreamer1.0-0 gstreamer1.0-plugins-base \
  gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly \
  gstreamer1.0-libav gstreamer1.0-doc gstreamer1.0-tools gstreamer1.0-x \
  gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio \
- gstreamer1.0-rtsp
+ gstreamer1.0-rtsp \ 
+ va-driver-all gstreamer1.0-vaapi
 
 FROM dependencies as rtsp-server
 
@@ -55,7 +56,7 @@ RUN tar -C / -xvf aivero_rgbd_toolkit_2.0.0_x86_64.tar.bz2
 
 FROM aivero-rgbd-toolkit as kinect-rtsp-streamer
 
-WORKDIR /opt/aivero/rgbd_toolkit
+WORKDIR /opt/aivero/rgbd_toolkit_x86_64
 COPY docker/aivero_environment.sh .
 RUN chmod +x ./aivero_environment.sh
 
@@ -78,7 +79,7 @@ COPY docker/rtsp-server/rtsp-entry.sh .
 # This is an alternative colorizer that uses hsv-colors instead of "random" colors from a table
 # These colors are easy to transform back to depth, but we loose a bit of accuracy in comparision to greyscale
 # This colorizer can be modified by near-cut (between 1-~5) and far-cut (between 3-~8)
-# COPY docker/libcolorizer.so /opt/aivero/rgbd_toolkit_x86_64/lib/gstreamer-1.0/
+COPY docker/libcolorizer.so /opt/aivero/rgbd_toolkit_x86_64/lib/gstreamer-1.0/
 
 ENTRYPOINT ["bash", "+x", "rtsp-entry.sh"]
 #CMD tail -f /dev/null

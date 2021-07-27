@@ -4,7 +4,6 @@ services:
   # configuration in "rtsp-simple-server.yml"
   # rtsp-simple-server:
   #   image: aler9/rtsp-simple-server
-  #   network_mode: "host"
   #   ports: 
   #     - "8000:8000"
   #     - "8001:8001"
@@ -14,7 +13,11 @@ services:
   rgbdtoolkits:
     image: aivero-rgbd-toolkit:latest
     # remove "network_mode: host" if using rtsp-simple-server
+    # if feels a bit faster with this, as when using "ports"
     network_mode: "host"
+    # can be used when network_mode should not be "host"
+    # ports: 
+    #       - "8554:8554"
     build:
       context: ..
       dockerfile: ./docker/Dockerfile
